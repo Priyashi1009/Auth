@@ -32,13 +32,19 @@ public class UserLoginService {
         if (isValid) {
             Instant now = Instant.now();
             SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+            Optional<UserLogin> userOptional = userRepository.findByUsername(username);
+            if (userOptional.isPresent()) {
+                UserLogin user = userOptional.get();
+                String role = user.getRole();
 
             return Jwts.builder()
                     .setSubject(username)
+                    .claim("role", role) 
                     .setIssuedAt(Date.from(now))
                     .setExpiration(Date.from(now.plusMillis(TOKEN_VALIDITY)))
                     .signWith(key, SignatureAlgorithm.HS256)
                     .compact();
+            }
         }
         return null;
     }
@@ -64,4 +70,25 @@ public class UserLoginService {
         return response;
     }
     
+    public Map<String, Object> validateJwtToken(String token) {
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            SecretKey key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+            var claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+
+            String role = claims.get("role", String.class); // Extracting the role from claims
+
+            response.put("role", role);
+            response.put("Status"," Application is running succesfully");
+
+        } catch (Exception e) {
+        	response.put("error occured", "Token mismatch/Logged out");
+        }
+        return response;
+    }
 }

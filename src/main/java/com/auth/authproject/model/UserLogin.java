@@ -35,11 +35,11 @@ public class UserLogin {
         this.password = password;
     }
 
-    public String getrole(){
+    public String getRole(){
         return role;
     }
 
-    public void setrole(String role){
+    public void setRole(String role){
         this.role = role;
     }
 }

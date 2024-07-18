@@ -17,4 +17,9 @@ public class UserLoginController {
     public Map<String, String> login(@RequestParam String username, @RequestParam String password) {
         return userService.loginService(username, password);
     }
+
+    @GetMapping("/status")
+    public Map<String, Object> getHotel(@RequestParam String token) {
+        return userService.validateJwtToken(token); 
+    }
 }
